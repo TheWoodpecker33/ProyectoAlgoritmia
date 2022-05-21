@@ -7,6 +7,6 @@ namespace ATM.DataModel.Interfaces
     {
         public bool ValidateCreditCards(List<CreditCard> cards, int count);
         public void RemoveCards(List<CreditCard> cards, int count);
-        public List<CreditCard> GetList(List<CreditCard> cards);
+        public List<CreditCard> GetOrderedList(List<CreditCard> cards);
     }
 }

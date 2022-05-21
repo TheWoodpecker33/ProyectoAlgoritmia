@@ -35,20 +35,76 @@ namespace ATM.Repositories
             return cards.Count == count;
         }
 
-        public List<CreditCard> GetList(List<CreditCard> cards)
+        public List<CreditCard> GetOrderedList(List<CreditCard> cards)
         {
-            Stack<CreditCard> otherList = new();
-            int cont = 0;
-            for(int i = 1; i < cards.Count; i++)
+            List<CreditCard> possibleCandidates = getLesserThanFirstCard(ref cards);
+            List<CreditCard> answer =  possibleCandidates.Count > cards.Count ? possibleCandidates : cards;
+            return answer;
+        }
+
+        public static List<CreditCard> getLesserThanFirstCard(ref List<CreditCard> fullCards)
+        {
+            List<CreditCard> cardsNotBigEnough = new();
+            List<CreditCard> cardsToDelete = new();
+            List<CreditCard> possibleAnswewrs = new();
+            int pivot = 0;
+            for (int i = 1; i < fullCards.Count; i++)
             {
-                if(cards[cont].Card > cards[cont + 1].Card)
+                if(fullCards[pivot].Card > fullCards[i].Card)
                 {
-                    if(!(cards[cont].Card > cards[cont + 2].Card))
-                    otherList.Push(cards[cont + 1]);
+                    if(cardsNotBigEnough.Count > 0)
+                    {
+                        if(cardsNotBigEnough[cardsNotBigEnough.Count - 1].Card < 
+                            fullCards[i].Card)
+                        {
+                            cardsNotBigEnough.Add(fullCards[i]);
+                        }
+                        else
+                        {
+                            cardsToDelete.Add(fullCards[i]);
+                        }
+                    }
+                    else
+                    {
+                        cardsNotBigEnough.Add(fullCards[i]);
+                    }
+                }
+                else if(cardsNotBigEnough.Count > 0)
+                {
+                    if (cardsNotBigEnough[cardsNotBigEnough.Count - 1].Card > fullCards[i].Card)
+                    {
+                        if (fullCards[pivot].Card < fullCards[i].Card)
+                        {
+                            continue;
+                        }
+                        cardsToDelete.Add(fullCards[i]);
+                        continue;
+                    }
+                    cardsNotBigEnough.Add(fullCards[i]);
                 }
             }
+            foreach (CreditCard card in cardsToDelete)
+            {
+                fullCards.Remove(card);
+            }
 
-            return null;
+            foreach (var card in cardsNotBigEnough)
+            {
+                fullCards.Remove(card);
+            }
+
+            return cardsNotBigEnough;
+        }
+
+        public void WriteToFile(string fileName, List<CreditCard> cards)
+        {
+            using StreamWriter file = new(fileName);
+            file.WriteLineAsync(cards.Count.ToString());
+            foreach (CreditCard c in cards)
+            {
+                file.WriteLineAsync(c.Id.ToString());
+            }
+
         }
     }
 }
